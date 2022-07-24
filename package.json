@@ -1,15 +1,16 @@
 {
-  "name": "typescript_template",
-  "version": "1.0.0",
+  "name": "adobe_typescript_template",
+  "version": "0.0.1",
   "description": "",
   "main": "index.ts",
   "scripts": {
     "start:ae": "webpack --mode development && node ./build-scripts/hostApps.js ae",
+    "start:ps": "webpack --mode development && node ./build-scripts/hostApps.js ps",
     "release": "webpack --mode production && node ./build-scripts/jsxbin.js"
   },
   "keywords": [],
   "author": "Greg W",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "ts-loader": "^9.3.0",
     "typescript": "^4.6.4",

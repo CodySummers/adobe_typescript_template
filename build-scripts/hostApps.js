@@ -4,6 +4,14 @@ const path = require('path')
 const dirname = path.resolve()
 const packageName = process.env.npm_package_name;
 const args = process.argv
+const application = args[args.length - 1]
+
+let appExe
+switch (application) {
+    case 'ae': appExe = 'C:/Program Files/Adobe/Adobe After Effects 2022/Support Files/AfterFX'
+        break
+    case 'ps': appExe = 'C:/Program Files/Adobe/Adobe Photoshop 2022/Photoshop.exe'
+}
 
 const hostApps = (appExe, scriptFile, activate = '') => {
 
@@ -53,8 +61,7 @@ const hostApps = (appExe, scriptFile, activate = '') => {
     }
 }
 
-const appExe = 'C:/Program Files/Adobe/Adobe After Effects 2022/Support Files/AfterFX'
-const script = `${dirname}/dist/${packageName}.jsx`
+const script = path.join(dirname, 'dist', `${packageName}.jsx`)
 const program = hostApps(appExe, script)[args[args.length - 1]]
 const exe = program[platform()];
 
