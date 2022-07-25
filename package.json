@@ -4,17 +4,20 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "start:ae": "webpack --mode development && node ./build-scripts/hostApps.js ae",
-    "start:ps": "webpack --mode development && node ./build-scripts/hostApps.js ps",
-    "release": "webpack --mode production && node ./build-scripts/jsxbin.js"
+    "build:dev": "webpack --mode development",
+    "build:prod": "webpack --mode production",
+    "start:ae": "npm run build:dev && adobe-build-scripts ae",
+    "start:ps": "npm run build:dev && adobe-build-scripts ps",
+    "release": "npm run build:prod && adobe-build-release"
   },
   "keywords": [],
   "author": "Greg W",
   "license": "MIT",
   "devDependencies": {
+    "adobe-build-scripts": "github:CodySummers/adobe-build-scripts",
     "ts-loader": "^9.3.0",
-    "typescript": "^4.6.4",
     "types-for-adobe": "^7.0.1",
+    "typescript": "^4.6.4",
     "webpack": "^5.72.1",
     "webpack-cli": "^4.9.2"
   },
