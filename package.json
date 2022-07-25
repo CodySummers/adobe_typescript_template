@@ -6,8 +6,11 @@
   "scripts": {
     "build:dev": "webpack --mode development",
     "build:prod": "webpack --mode production",
-    "start:ae": "npm run build:dev && adobe-build-scripts ae",
-    "start:ps": "npm run build:dev && adobe-build-scripts ps",
+    "watch": "webpack --watch --mode development --env",
+    "watch:ae": "npm run watch ae",
+    "watch:ps": "npm run watch ps",
+    "start:ae": "npm run build:dev && adobe-build-scripts ae && exit",
+    "start:ps": "npm run build:dev && adobe-build-scripts ps && exit",
     "release": "npm run build:prod && adobe-build-release"
   },
   "keywords": [],
