@@ -1,31 +1,14 @@
-export function findReplaceExpressionComp(comp: CompItem, find: string, replace: string) {
+import { CompLayerObject } from './types'
 
-    let count = 0
-    const layers = comp.layers
-
-    for (let i = 1; i <= layers.length; i++) {
-        const layer = layers[i];
-        count += findExpressionLayer(layer, find, replace)
-    }
-
-    return count
-}
-
-export function findExpressionLayer(layer: any, find: string, replace: string, count = 0) {
-
-    for (let i = 1; i <= layer.numProperties; i++) {
-        const property = layer.property(i)
-        if (property.canSetExpression && property.expression != '') {
-            if (property.expression.includes(find)) {
-                const regex = new RegExp(find, 'gm')
-                const expression = property.expression.replace(find, replace)
-                property.expression = expression
-                count++
-            }
+export const allLayersByType = (comp: CompItem, type: any, list: CompLayerObject[] = []): { comp: CompItem, layer: AVLayer }[] => {
+    for (let i = 1; i <= comp.numLayers; i++) {
+        const layer = comp.layers[i] as AVLayer
+        if (layer instanceof type) {
+            list.push({ comp, layer })
         }
-        if (property.numProperties > 0) {
-            count = findExpressionLayer(property, find, replace, count)
+        if (layer.source && layer.source instanceof CompItem) {
+            list.concat(allLayersByType(layer.source, type, list))
         }
     }
-    return count
+    return list
 }
