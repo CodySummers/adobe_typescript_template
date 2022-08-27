@@ -6,6 +6,7 @@ const args = process.argv
 const application = args[args.length - 1]
 const adobeBuildScript = path.join(dirname, 'node_modules', 'adobe-build-scripts', 'bin', 'hostapps.js')
 const watchMode = args.some(arg => arg === '--watch')
+const { Compilation, sources } = require('webpack');
 
 module.exports = {
     target: ['web', 'es3'],
@@ -39,6 +40,20 @@ module.exports = {
                             if (stderr) process.stderr.write(stderr);
                         });
                     }
+                });
+            }
+        },
+        {
+            //Without adding 'this' into the global scope the UI was rendering twice, an empty window and the UI.
+            apply(compiler) {
+                compiler.hooks.thisCompilation.tap('Replace', (compilation) => {
+                    compilation.hooks.processAssets.tap({ name: 'TEST_PLUGIN', stage: Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL },
+                        () => {
+                            const fileContent = compilation.getAsset(`${packageName}.jsx`);
+                            const newFileContent = 'var panelGlobal = this;\n' + fileContent.source.source()
+                            compilation.updateAsset(`${packageName}.jsx`, new sources.RawSource(newFileContent));
+                        }
+                    );
                 });
             }
         }
