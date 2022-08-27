@@ -1,3 +1,9 @@
-import { testAlert } from './lib/utils'
+import { findReplaceExpressionComp } from "./lib/utils"
 
-testAlert('Welcome to Typescript')
+const comp = app.project.activeItem
+if (comp && comp instanceof CompItem) {
+    let count = findReplaceExpressionComp(comp, '"NotoSansThai-Regular"', '"NotoSansThai-Medium"')
+    alert(`Amended ${count} ${count === 1 ? 'expression' : 'expressions'}`)
+    count = findReplaceExpressionComp(comp, '"NotoSansThai-Bold"', '"NotoSansThai-SemiBold"')
+    alert(`Amended ${count} ${count === 1 ? 'expression' : 'expressions'}`)
+}
