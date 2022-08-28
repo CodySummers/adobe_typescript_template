@@ -2,12 +2,7 @@ import { allLayersByType } from './utils'
 
 export const allLayerTypesUI = () => {
 
-    const comp = app.project.activeItem
     let compLayers: { comp: CompItem, layer: AVLayer }[]
-
-    if (comp instanceof CompItem) {
-        compLayers = allLayersByType(comp, TextLayer)
-    }
 
     let index = -1
     const nextPrevious = (dir: number) => {
@@ -16,7 +11,7 @@ export const allLayerTypesUI = () => {
         if (max === 0) {
             const comp = app.project.activeItem
             if (comp instanceof CompItem) {
-                compLayers = allLayersByType(comp, TextLayer)
+                compLayers = allLayersByType(comp, types[type.selection.index])
             } else {
                 return
             }
@@ -75,17 +70,22 @@ export const allLayerTypesUI = () => {
 
     // ARRORS
     // ======
-    var arrors = palette.add("group", undefined, { name: "arrors" });
-    arrors.orientation = "row";
-    arrors.alignChildren = ["left", "center"];
-    arrors.spacing = 10;
-    arrors.margins = 0;
+    var arrows = palette.add("group", undefined, { name: "arrors" });
+    arrows.orientation = "row";
+    arrows.alignChildren = ["left", "center"];
+    arrows.spacing = 10;
+    arrows.margins = 0;
 
-    var left = arrors.add("button", undefined, undefined, { name: "left" });
+    var left = arrows.add("button", undefined, undefined, { name: "left" });
     left.text = "<";
 
-    var right = arrors.add("button", undefined, undefined, { name: "right" });
+    var right = arrows.add("button", undefined, undefined, { name: "right" });
     right.text = ">";
+
+    var layersFound = palette.add("statictext", undefined, undefined, { name: "layersFound" }) as StaticText
+    layersFound.text = ''
+    layersFound.minimumSize.width = 230
+    layersFound.justify = 'center'
 
     right.onClick = () => { nextPrevious(1) }
     left.onClick = () => { nextPrevious(-1) }
@@ -94,9 +94,14 @@ export const allLayerTypesUI = () => {
         index = -1
         const comp = app.project.activeItem
         if (comp instanceof CompItem) {
+            compLayers = []
             compLayers = allLayersByType(comp, types[type.selection.index])
+            const length = compLayers.length
+            layersFound.text = `${length} ${length === 1 ? 'Layer' : 'Layers'} Found`
         }
     }
+
+    refreshLayers()
 
     refresh.onClick = refreshLayers
     type.onChange = refreshLayers
