@@ -2373,27 +2373,28 @@ var findAndReplaceExpressionUI = function () {
     palette.spacing = 10;
     palette.margins = 16;
     var findText = palette.add('edittext {properties: {name: "findText"}}');
-    findText.name = "findText";
-    findText.text = "Find:";
+    findText.placeholder = "Find:     ";
+    findText.text = findText.placeholder;
     var replaceText = palette.add('edittext {properties: {name: "replaceText"}}');
-    replaceText.name = "replaceText";
-    replaceText.text = "Replace:";
+    replaceText.placeholder = "Replace:     ";
+    replaceText.text = replaceText.placeholder;
     var runButton = palette.add("button", undefined, undefined, { name: "runButton" });
     runButton.text = "Find Replace Expressions";
     var amends = palette.add('statictext {properties: {name: "amends"}}');
     amends.justify = "center";
     amends.text = "";
-    (0, utils_1.handleText)(findText, replaceText);
+    (0, utils_1.handlePlaceholder)(findText);
+    (0, utils_1.handlePlaceholder)(replaceText);
     runButton.onClick = function () {
-        var comp = app.project.activeItem;
-        if (!(comp instanceof CompItem))
-            return;
-        var find = findText.text;
-        var replace = replaceText.text;
-        if (find === '' || find === 'Find:' || replace === '' || replace === 'Replace:')
-            return;
-        var count = (0, utils_1.findReplaceExpressionComp)(comp, find, replace);
-        amends.text = "".concat(count, " ").concat(count === 1 ? 'expression' : 'expressions', " amended");
+        try {
+            var find = findText.text === findText.placeholder ? '' : findText.text;
+            var replace = replaceText.text === replaceText.placeholder ? '' : replaceText.text;
+            var count = (0, utils_1.expressionPropLayerComp)(find, replace);
+            amends.text = "".concat(count, " ").concat(count === 1 ? 'expression' : 'expressions', " amended");
+        }
+        catch (error) {
+            alert(error);
+        }
     };
     palette.layout.layout(true);
     palette.layout.resize();
@@ -2413,56 +2414,103 @@ exports.findAndReplaceExpressionUI = findAndReplaceExpressionUI;
 "use strict";
 
 exports.__esModule = true;
-exports.handleText = exports.findExpressionLayer = exports.findReplaceExpressionComp = void 0;
-function findReplaceExpressionComp(comp, find, replace) {
-    app.beginUndoGroup('Find Replace Expression');
+exports.handlePlaceholder = exports.expressionPropLayerComp = exports.findReplaceExpressionComp = exports.findExpressionLayer = exports.findExpressionProperty = void 0;
+function findExpressionProperty(property, find, replace, count) {
+    if (count === void 0) { count = 0; }
+    if (property.canSetExpression && property.expression != '') {
+        if (property.expression.includes(find)) {
+            var regex = new RegExp("(.?)".concat(find, "(.?)"), 'gm');
+            var expression = property.expression.replace(regex, "$1".concat(replace, "$2"));
+            property.expression = expression;
+            count++;
+        }
+    }
+    return count;
+}
+exports.findExpressionProperty = findExpressionProperty;
+var findExpressionLayer = function (layer, find, replace, seen, count) {
+    if (seen === void 0) { seen = {}; }
+    if (count === void 0) { count = 0; }
+    for (var i = 1; i <= layer.numProperties; i++) {
+        var property = layer.property(i);
+        count += findExpressionProperty(property, find, replace);
+        if (property.numProperties > 0) {
+            count = (0, exports.findExpressionLayer)(property, find, replace, seen, count);
+        }
+    }
+    if (layer.source && layer.source instanceof CompItem && !seen[layer.source.id]) {
+        seen[layer.source.id] = true;
+        count += (0, exports.findReplaceExpressionComp)(layer.source, find, replace);
+    }
+    return count;
+};
+exports.findExpressionLayer = findExpressionLayer;
+var findReplaceExpressionComp = function (comp, find, replace, seen) {
+    if (seen === void 0) { seen = {}; }
     var count = 0;
     var layers = comp.layers;
     for (var i = 1; i <= layers.length; i++) {
         var layer = layers[i];
-        count += findExpressionLayer(layer, find, replace);
-    }
-    app.endUndoGroup();
-    return count;
-}
-exports.findReplaceExpressionComp = findReplaceExpressionComp;
-function findExpressionLayer(layer, find, replace, count) {
-    if (count === void 0) { count = 0; }
-    for (var i = 1; i <= layer.numProperties; i++) {
-        var property = layer.property(i);
-        if (property.canSetExpression && property.expression != '') {
-            if (property.expression.includes(find)) {
-                var regex = new RegExp("(.?)".concat(find, "(.?)"), 'gm');
-                var expression = property.expression.replace(regex, "$1".concat(replace, "$2"));
-                property.expression = expression;
-                count++;
-            }
-        }
-        if (property.numProperties > 0) {
-            count = findExpressionLayer(property, find, replace, count);
-        }
+        count += (0, exports.findExpressionLayer)(layer, find, replace, seen);
     }
     return count;
-}
-exports.findExpressionLayer = findExpressionLayer;
-var handleText = function (findText, replaceText) {
-    var handleTextFocus = function (textProp) {
-        if (textProp.text === 'Find:' || textProp.text === 'Replace:') {
-            textProp.text = '';
-        }
-        else if (textProp.text === '' && textProp.name === 'findText') {
-            textProp.text = 'Find:';
-        }
-        else if (textProp.text === '' && textProp.name === 'replaceText') {
-            textProp.text = 'Replace:';
-        }
-    };
-    findText.onActivate = function () { handleTextFocus(findText); };
-    findText.onDeactivate = function () { handleTextFocus(findText); };
-    replaceText.onActivate = function () { handleTextFocus(replaceText); };
-    replaceText.onDeactivate = function () { handleTextFocus(replaceText); };
 };
-exports.handleText = handleText;
+exports.findReplaceExpressionComp = findReplaceExpressionComp;
+var itemsByType = function (items, itemType) {
+    var start = (items instanceof ItemCollection || items instanceof LayerCollection) ? 1 : 0;
+    var end = start === 0 ? -1 : 0;
+    var typeItems = [];
+    for (var i = start; i <= items.length - end; i++) {
+        var item = items[i];
+        if (!(item instanceof itemType))
+            continue;
+        typeItems.push(item);
+    }
+    return typeItems;
+};
+var expressionPropLayerComp = function (find, replace) {
+    app.beginUndoGroup('Find Replace Expression');
+    var project = app.project;
+    var items = project.items;
+    var selectedItems = project.selection;
+    var activeComp = project.activeItem;
+    var comps = [];
+    if (activeComp && activeComp instanceof CompItem) {
+        var selectedLayers = activeComp.selectedLayers;
+        var selectedProperties = activeComp.selectedProperties;
+        if (selectedProperties.length > 0) {
+            return selectedProperties.reduce(function (total, property) { return total + findExpressionProperty(property, find, replace); }, 0);
+        }
+        else if (selectedLayers.length > 0) {
+            return selectedLayers.reduce(function (total, layer) { return total + (0, exports.findExpressionLayer)(layer, find, replace); }, 0);
+        }
+        else {
+            return (0, exports.findReplaceExpressionComp)(activeComp, find, replace);
+        }
+    }
+    else if (selectedItems.length > 0) {
+        comps = itemsByType(selectedItems, CompItem);
+    }
+    else {
+        comps = itemsByType(items, CompItem);
+    }
+    var count = comps.reduce(function (total, comp) { return total + (0, exports.findReplaceExpressionComp)(comp, find, replace); }, 0);
+    return count;
+};
+exports.expressionPropLayerComp = expressionPropLayerComp;
+var handlePlaceholderFocus = function (textProp) {
+    if (textProp.text === textProp.placeholder) {
+        textProp.text = '';
+    }
+    else if (textProp.text === '') {
+        textProp.text = textProp.placeholder;
+    }
+};
+var handlePlaceholder = function (textProp) {
+    textProp.onActivate = function () { handlePlaceholderFocus(textProp); };
+    textProp.onDeactivate = function () { handlePlaceholderFocus(textProp); };
+};
+exports.handlePlaceholder = handlePlaceholder;
 
 
 /***/ })

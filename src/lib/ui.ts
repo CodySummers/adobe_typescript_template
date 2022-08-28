@@ -1,5 +1,5 @@
 import { ExtendedEditText } from './types'
-import { handleText, findReplaceExpressionComp } from './utils';
+import { handlePlaceholder, expressionPropLayerComp } from './utils';
 
 export const findAndReplaceExpressionUI = () => {
 
@@ -15,12 +15,12 @@ export const findAndReplaceExpressionUI = () => {
     palette.margins = 16;
 
     const findText = palette.add('edittext {properties: {name: "findText"}}') as ExtendedEditText;
-    findText.name = "findText"
-    findText.text = "Find:";
+    findText.placeholder = "Find:     "
+    findText.text = findText.placeholder;
 
     const replaceText = palette.add('edittext {properties: {name: "replaceText"}}') as ExtendedEditText
-    replaceText.name = "replaceText"
-    replaceText.text = "Replace:";
+    replaceText.placeholder = "Replace:     "
+    replaceText.text = replaceText.placeholder;
 
     const runButton = palette.add("button", undefined, undefined, { name: "runButton" });
     runButton.text = "Find Replace Expressions";
@@ -29,16 +29,19 @@ export const findAndReplaceExpressionUI = () => {
     amends.justify = "center"
     amends.text = "";
 
-    handleText(findText, replaceText)
+    handlePlaceholder(findText)
+    handlePlaceholder(replaceText)
 
     runButton.onClick = () => {
-        const comp = app.project.activeItem
-        if (!(comp instanceof CompItem)) return
-        const find = findText.text
-        const replace = replaceText.text
-        if (find === '' || find === 'Find:' || replace === '' || replace === 'Replace:') return
-        const count = findReplaceExpressionComp(comp, find, replace)
-        amends.text = `${count} ${count === 1 ? 'expression' : 'expressions'} amended`;
+        try {
+            const find = findText.text === findText.placeholder ? '' : findText.text
+            const replace = replaceText.text === replaceText.placeholder ? '' : replaceText.text
+            const count = expressionPropLayerComp(find, replace)
+            amends.text = `${count} ${count === 1 ? 'expression' : 'expressions'} amended`;
+        }
+        catch (error: any) {
+            alert(error)
+        }
     }
 
     palette.layout.layout(true);
