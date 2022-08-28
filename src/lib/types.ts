@@ -1,0 +1,1 @@
+export type ExtendedEditText = EditText & { name: string }
