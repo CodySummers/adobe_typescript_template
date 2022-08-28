@@ -1,5 +1,6 @@
-import { ExtendedEditText } from './types'
-import { handlePlaceholder, expressionPropLayerComp } from './utils';
+import { ExtendedEditText } from '../types'
+import { expressionPropLayerComp } from '../expressionFunctons';
+import { handlePlaceholder } from './uiUtils'
 
 export const findAndReplaceExpressionUI = () => {
 
@@ -36,7 +37,14 @@ export const findAndReplaceExpressionUI = () => {
         try {
             const find = findText.text === findText.placeholder ? '' : findText.text
             const replace = replaceText.text === replaceText.placeholder ? '' : replaceText.text
-            const count = expressionPropLayerComp(find, replace)
+
+            let count
+            if (find === '') {
+                count = 0
+            } else {
+                count = expressionPropLayerComp(find, replace)
+            }
+
             amends.text = `${count} ${count === 1 ? 'expression' : 'expressions'} amended`;
         }
         catch (error: any) {

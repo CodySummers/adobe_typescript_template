@@ -2350,71 +2350,20 @@ var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 var __webpack_unused_export__;
 
 __webpack_unused_export__ = true;
-var ui_1 = __webpack_require__(58);
+var ui_1 = __webpack_require__(501);
 (0, ui_1.findAndReplaceExpressionUI)();
 
 
 /***/ }),
 
-/***/ 58:
+/***/ 122:
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-exports.findAndReplaceExpressionUI = void 0;
-var utils_1 = __webpack_require__(721);
-var findAndReplaceExpressionUI = function () {
-    var palette = (panelGlobal instanceof Panel) ? panelGlobal : new Window("palette", undefined, undefined, { resizeable: true });
-    if (!(panelGlobal instanceof Panel))
-        palette.text = "Find Replace Expressions";
-    palette.orientation = "column";
-    palette.alignChildren = ["fill", "top"];
-    palette.spacing = 10;
-    palette.margins = 16;
-    var findText = palette.add('edittext {properties: {name: "findText"}}');
-    findText.placeholder = "Find:     ";
-    findText.text = findText.placeholder;
-    var replaceText = palette.add('edittext {properties: {name: "replaceText"}}');
-    replaceText.placeholder = "Replace:     ";
-    replaceText.text = replaceText.placeholder;
-    var runButton = palette.add("button", undefined, undefined, { name: "runButton" });
-    runButton.text = "Find Replace Expressions";
-    var amends = palette.add('statictext {properties: {name: "amends"}}');
-    amends.justify = "center";
-    amends.text = "";
-    (0, utils_1.handlePlaceholder)(findText);
-    (0, utils_1.handlePlaceholder)(replaceText);
-    runButton.onClick = function () {
-        try {
-            var find = findText.text === findText.placeholder ? '' : findText.text;
-            var replace = replaceText.text === replaceText.placeholder ? '' : replaceText.text;
-            var count = (0, utils_1.expressionPropLayerComp)(find, replace);
-            amends.text = "".concat(count, " ").concat(count === 1 ? 'expression' : 'expressions', " amended");
-        }
-        catch (error) {
-            alert(error);
-        }
-    };
-    palette.layout.layout(true);
-    palette.layout.resize();
-    palette.onResizing = palette.onResize = function () { this.layout.resize(); };
-    if (palette instanceof Window)
-        palette.show();
-    return palette;
-};
-exports.findAndReplaceExpressionUI = findAndReplaceExpressionUI;
-
-
-/***/ }),
-
-/***/ 721:
-/***/ (function(__unused_webpack_module, exports) {
-
-"use strict";
-
-exports.__esModule = true;
-exports.handlePlaceholder = exports.expressionPropLayerComp = exports.findReplaceExpressionComp = exports.findExpressionLayer = exports.findExpressionProperty = void 0;
+exports.expressionPropLayerComp = exports.findReplaceExpressionComp = exports.findExpressionLayer = exports.findExpressionProperty = void 0;
+var utils_1 = __webpack_require__(988);
 function findExpressionProperty(property, find, replace, count) {
     if (count === void 0) { count = 0; }
     if (property.canSetExpression && property.expression != '') {
@@ -2456,18 +2405,6 @@ var findReplaceExpressionComp = function (comp, find, replace, seen) {
     return count;
 };
 exports.findReplaceExpressionComp = findReplaceExpressionComp;
-var itemsByType = function (items, itemType) {
-    var start = (items instanceof ItemCollection || items instanceof LayerCollection) ? 1 : 0;
-    var end = start === 0 ? -1 : 0;
-    var typeItems = [];
-    for (var i = start; i <= items.length - end; i++) {
-        var item = items[i];
-        if (!(item instanceof itemType))
-            continue;
-        typeItems.push(item);
-    }
-    return typeItems;
-};
 var expressionPropLayerComp = function (find, replace) {
     app.beginUndoGroup('Find Replace Expression');
     var project = app.project;
@@ -2489,15 +2426,85 @@ var expressionPropLayerComp = function (find, replace) {
         }
     }
     else if (selectedItems.length > 0) {
-        comps = itemsByType(selectedItems, CompItem);
+        comps = (0, utils_1.itemsByType)(selectedItems, CompItem);
     }
     else {
-        comps = itemsByType(items, CompItem);
+        comps = (0, utils_1.itemsByType)(items, CompItem);
     }
     var count = comps.reduce(function (total, comp) { return total + (0, exports.findReplaceExpressionComp)(comp, find, replace); }, 0);
     return count;
 };
 exports.expressionPropLayerComp = expressionPropLayerComp;
+
+
+/***/ }),
+
+/***/ 501:
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+exports.findAndReplaceExpressionUI = void 0;
+var expressionFunctons_1 = __webpack_require__(122);
+var uiUtils_1 = __webpack_require__(644);
+var findAndReplaceExpressionUI = function () {
+    var palette = (panelGlobal instanceof Panel) ? panelGlobal : new Window("palette", undefined, undefined, { resizeable: true });
+    if (!(panelGlobal instanceof Panel))
+        palette.text = "Find Replace Expressions";
+    palette.orientation = "column";
+    palette.alignChildren = ["fill", "top"];
+    palette.spacing = 10;
+    palette.margins = 16;
+    var findText = palette.add('edittext {properties: {name: "findText"}}');
+    findText.placeholder = "Find:     ";
+    findText.text = findText.placeholder;
+    var replaceText = palette.add('edittext {properties: {name: "replaceText"}}');
+    replaceText.placeholder = "Replace:     ";
+    replaceText.text = replaceText.placeholder;
+    var runButton = palette.add("button", undefined, undefined, { name: "runButton" });
+    runButton.text = "Find Replace Expressions";
+    var amends = palette.add('statictext {properties: {name: "amends"}}');
+    amends.justify = "center";
+    amends.text = "";
+    (0, uiUtils_1.handlePlaceholder)(findText);
+    (0, uiUtils_1.handlePlaceholder)(replaceText);
+    runButton.onClick = function () {
+        try {
+            var find = findText.text === findText.placeholder ? '' : findText.text;
+            var replace = replaceText.text === replaceText.placeholder ? '' : replaceText.text;
+            var count = void 0;
+            if (find === '') {
+                count = 0;
+            }
+            else {
+                count = (0, expressionFunctons_1.expressionPropLayerComp)(find, replace);
+            }
+            amends.text = "".concat(count, " ").concat(count === 1 ? 'expression' : 'expressions', " amended");
+        }
+        catch (error) {
+            alert(error);
+        }
+    };
+    palette.layout.layout(true);
+    palette.layout.resize();
+    palette.onResizing = palette.onResize = function () { this.layout.resize(); };
+    if (palette instanceof Window)
+        palette.show();
+    return palette;
+};
+exports.findAndReplaceExpressionUI = findAndReplaceExpressionUI;
+
+
+/***/ }),
+
+/***/ 644:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+exports.__esModule = true;
+exports.handlePlaceholder = void 0;
 var handlePlaceholderFocus = function (textProp) {
     if (textProp.text === textProp.placeholder) {
         textProp.text = '';
@@ -2511,6 +2518,30 @@ var handlePlaceholder = function (textProp) {
     textProp.onDeactivate = function () { handlePlaceholderFocus(textProp); };
 };
 exports.handlePlaceholder = handlePlaceholder;
+
+
+/***/ }),
+
+/***/ 988:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+exports.__esModule = true;
+exports.itemsByType = void 0;
+var itemsByType = function (items, itemType) {
+    var start = (items instanceof ItemCollection || items instanceof LayerCollection) ? 1 : 0;
+    var end = start === 0 ? -1 : 0;
+    var typeItems = [];
+    for (var i = start; i <= items.length - end; i++) {
+        var item = items[i];
+        if (!(item instanceof itemType))
+            continue;
+        typeItems.push(item);
+    }
+    return typeItems;
+};
+exports.itemsByType = itemsByType;
 
 
 /***/ })

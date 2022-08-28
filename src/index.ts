@@ -1,3 +1,3 @@
-import { findAndReplaceExpressionUI } from "./lib/ui"
+import { findAndReplaceExpressionUI } from "./libs/ui"
 
 findAndReplaceExpressionUI()
