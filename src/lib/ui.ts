@@ -91,6 +91,7 @@ export const allLayerTypesUI = () => {
     left.onClick = () => { nextPrevious(-1) }
 
     const refreshLayers = () => {
+        index = -1
         const comp = app.project.activeItem
         if (comp instanceof CompItem) {
             compLayers = allLayersByType(comp, types[type.selection.index])
