@@ -1,5 +1,5 @@
 {
-  "name": "check-all-layers-by-type",
+  "name": "find-all-layers-by-type",
   "version": "0.0.1",
   "description": "",
   "main": "index.ts",
